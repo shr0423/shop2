@@ -1,0 +1,178 @@
+■ system으로 로그인해서 
+create  tablespace  shop
+datafile '경로/XE/shop.dbf'  size 5M; 
+
+create  user  shop
+identified by 1234
+default  tablespace shop
+quota  unlimited  on shop;
+
+grant create  table , create sequence , create session to shop; 
+
+■ shop 으로 로그인해서  (  conn  shop/1234  )
+  create  table  admin(
+     admin_idx  number  primary key 
+   , id varchar2(20)
+   , pass varchar2(20)
+   , name varchar2(20)
+);
+create sequence  seq_admin
+increment by 1
+start with 1;
+
+insert into admin(admin_idx, id, pass, name) values(seq_admin.nextval, 'zino','1234','지노');
+
+---------------------------------------------------------------
+create table topcategory(
+ topcategory_idx number primary key
+, topname varchar2(30)
+);
+
+
+create sequence seq_topcategory
+increment by 1
+start with 1;
+
+
+select table_name from user_tables;
+
+select sequence_name from  user_sequences;
+
+create table subcategory(
+subcategory_idx number primary key
+, topcategory_idx number
+, subname varchar2(30)
+, constraint fk_topcategory_subcategory foreign key(topcategory_idx)
+references topcategory(topcategory_idx)
+);
+
+create sequence seq_subcategory
+increment by 1
+start with 1;
+
+create table product (
+product_idx number primary key
+, subcategory_idx number
+, product_name varchar2(40)
+, brand varchar2(30)
+, price number default 0 
+, filename varchar2(30)
+, detail clob 
+, constraint fk_subcategory_product foreign key(subcategory_idx)
+references subcategory(subcategory_idx)
+);
+
+
+create sequence seq_product
+increment by 1
+start with 1;
+
+create table product_size(
+product_size_idx number primary key
+, product_idx number
+, psize varchar(10)
+, constraint fk_product_product_size foreign key(product_idx)
+references product(product_idx)
+);
+
+
+create sequence seq_product_size
+increment by 1
+start with 1;
+
+create table thumb(
+thumb_idx number primary key
+, product_idx number
+, img varchar2(30)
+, constraint fk_product_thumb foreign key(product_idx)
+references product(product_idx)
+);
+
+create sequence seq_thumb
+increment by 1
+start with 1;
+
+select table_name from user_tables;
+
+select sequence_name from user_sequences;
+
+select * from topcategory;
+
+insert into topcategory(topcategory_idx, topname) values(seq_topcategory.nextval,'Top');
+insert into topcategory(topcategory_idx, topname) values(seq_topcategory.nextval,'Down');
+insert into topcategory(topcategory_idx, topname) values(seq_topcategory.nextval,'Accessory');
+insert into topcategory(topcategory_idx, topname) values(seq_topcategory.nextval,'Shoes');
+
+commit;
+
+select * from topcategory;
+
+
+host ipconfig;
+
+host chcp 949
+
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 5 ,'가디건');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 5 ,'점퍼');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 5 ,'니트');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 5 ,'티셔츠');
+
+commit;
+
+set line 200
+select * from subcategory;
+
+
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 6 ,'청바지');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 6 ,'반바지');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 6 ,'면바지');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 6 ,'스커트');
+
+commit;
+
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 7 ,'귀걸이');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 7 ,'목걸이');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 7 ,'반지');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 7 ,'시계');
+
+
+commit;
+
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 8 ,'운동화');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 8 ,'구두');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 8 ,'스니커즈');
+insert into subcategory(subcategory_idx, topcategory_idx, subname)
+values(seq_subcategory.nextval, 8 ,'슬리퍼');
+
+commit;
+
+select * from subcategory where topcategory_idx=5;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

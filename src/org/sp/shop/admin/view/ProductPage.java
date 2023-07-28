@@ -9,16 +9,30 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
+import org.sp.shop.admin.view.product.ExcelPage;
+import org.sp.shop.admin.view.product.ListPage;
+import org.sp.shop.admin.view.product.ProductSubPage;
+import org.sp.shop.admin.view.product.RegistPage;
+
 public class ProductPage extends Page{
 	JPanel p_west;
 	JPanel p_center;
 	String[] subTitle={"상품목록","상품등록","엑셀업로드"};
 	JLabel[] subNavi;
 	
+	//상품등록, 상품목록, 엑셀로 관리..등등의 페이지들을 보유
+	ProductSubPage[] pages;
+	
 	public ProductPage() {
 		p_west=new JPanel();
 		p_center=new JPanel();
 		createNavi();
+		pages =new ProductSubPage[3];
+		pages[0]=new RegistPage();
+		pages[1]=new ListPage();
+		pages[2]=new ExcelPage();
+		
+		
 		
 		//스타일
 		p_west.setPreferredSize(new Dimension(150,600));
@@ -27,9 +41,17 @@ public class ProductPage extends Page{
 		
 		setLayout(new BorderLayout());
 		//조립
+		for(int i=0;i<pages.length;i++) {
+			p_center.add(pages[i]);
+		
+		}
+		p_center.updateUI();
+		
 		add(p_west, BorderLayout.WEST);
 		add(p_center);
 		
+		//디폴트로 보여질 페이지
+		showHide(0);
 		
 	}
 	public void createNavi() {
@@ -37,8 +59,25 @@ public class ProductPage extends Page{
 		
 		for(int i=0;i<subTitle.length;i++) {
 			subNavi[i]=new JLabel(subTitle[i]);
+			subNavi[i].setPreferredSize(new Dimension(140,45));
 			p_west.add(subNavi[i]);
 			
 		}
 	}
+
+	//페이지 전환처리
+		public void showHide(int n) {//보이게 하고 싶은 index만 넘겨받는다
+			for(int i=0;i<pages.length;i++) {
+			if(i==n) {//넘겨받은 매개변수와 i가 일치할때만 보이게
+				pages[i].setVisible(true);//보이게처리
+				
+			}else {
+				pages[i].setVisible(false);//안보이게 처리
+				
+			}
+			
+			}
+			
+		}
+	
 }
