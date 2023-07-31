@@ -8,11 +8,15 @@ import java.sql.SQLException;
 
 import org.sp.shop.admin.domain.Admin;
 
+import util.DBManager;
+
 //오직 admin 테이블에 대한 CRUD만을 담당하기 위한 객체
 public class AdminDAO {
-	String url="jdbc:oracle:thin:@localhost:1521:XE";
-	String user="shop";
-	String password="1234";
+	DBManager dbManager;
+	
+	public AdminDAO(DBManager dbManager) {
+		this.dbManager=dbManager;
+	}
 	
 	//아래의 로그인 메서드를 호출한 사람에게 그 결과를 알려줘야 한다
 	//어떤 식의 결과? 로그인 성공한 사람에게는 그사람을 시스템이 기억해줘야 한다
@@ -23,10 +27,7 @@ public class AdminDAO {
 		Admin dto=null;//로그인 후 해당 관리자1사람 정보를 담기위한 객체
 		
 		try {
-			//드라이버 로드
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			
-			con=DriverManager.getConnection(url,user,password);
+			con=dbManager.connect();
 			
 			if(con==null) {
 				System.out.println("접속실패");
@@ -56,36 +57,11 @@ public class AdminDAO {
 				
 			}
 			
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
+		}  catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
-			if(rs!=null) {
-				try {
-					rs.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			if(pstmt!=null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			if(con!=null) {
-				try {
-					con.close();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+			dbManager.release(con, pstmt, rs);
 		}
 		return dto;
 	}

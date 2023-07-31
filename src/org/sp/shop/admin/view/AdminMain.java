@@ -4,12 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.Connection;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import util.DBManager;
 
 public class AdminMain extends JFrame{
 	JPanel p_north;
@@ -20,6 +25,7 @@ public class AdminMain extends JFrame{
 	
 	LoginForm loginForm;
 	
+	
 	//각 페이지의 index가 직관성이 없기때문에 상수로 표현하자
 	public static final int PRODUCT=0;
 	public static final int MEMBER=1;
@@ -29,6 +35,7 @@ public class AdminMain extends JFrame{
 	
 	//컨텐츠 페이지
 	Page[] pages;
+	Connection con;
 	
 	public AdminMain() {
 		p_north = new JPanel();
@@ -36,6 +43,8 @@ public class AdminMain extends JFrame{
 		la_login = new JLabel("");
 		p_center = new JPanel();
 		pages=new Page[4];
+	
+		
 		
 		//페이지 생성
 		pages[PRODUCT]=new ProductPage();
@@ -58,6 +67,7 @@ public class AdminMain extends JFrame{
 		//setVisible(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
 		
 		loginForm = new LoginForm(this);
 		
