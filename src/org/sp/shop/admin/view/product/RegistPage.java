@@ -9,6 +9,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,12 +26,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.sp.shop.admin.domain.Product;
 import org.sp.shop.admin.domain.SubCategory;
 import org.sp.shop.admin.domain.TopCategory;
+import org.sp.shop.admin.model.ProductDAO;
 import org.sp.shop.admin.model.SubCategoryDAO;
 import org.sp.shop.admin.model.TopCategoryDAO;
 
 import util.DBManager;
+import util.StringUtil;
 
 
 //등록화면..
@@ -49,13 +55,17 @@ public class RegistPage extends ProductSubPage{
 	JPanel p_content;//너비700x500짜리..
 	TopCategoryDAO topCategoryDAO;
 	SubCategoryDAO subCategoryDAO;
+	ProductDAO productDAO;
 	List<TopCategory> topList;//콤보박스에 채워넣을 원본데이터
 	//DTO들이 들어있음
+	List<SubCategory> subList;
+	
 	JFileChooser chooser;
 	Image image;//파일탐색기에서 선택한 바로 그 파일..
 	JButton bt_regist;//등록버튼
 	
 	DBManager dbManager;
+	File file;// 유저가 선택한 바로 그 파일
 	
 	public RegistPage() {
 		box_top=new JComboBox();
@@ -78,6 +88,8 @@ public class RegistPage extends ProductSubPage{
 		dbManager=new DBManager();
 		topCategoryDAO=new TopCategoryDAO(dbManager);
 		subCategoryDAO=new SubCategoryDAO(dbManager);
+		productDAO=new ProductDAO(dbManager);
+		
 		chooser=new JFileChooser("D:\\morning\\html_workspace\\images");
 		bt_regist=new JButton("등록");
 		
@@ -157,6 +169,67 @@ public class RegistPage extends ProductSubPage{
 	}
 	//상품등록하기 
 	public void regist() {
+		//ProductDTO에 등록한 내용을 채워넣기
+		Product dto=new Product();
+		
+		String product_name=t_product_name.getText();
+		String brand=t_brand.getText();
+		int price=Integer.parseInt(t_price.getText());
+		
+		//현재 시분초밀리세컨드(파일명)
+		//확장자 getExt() 
+		long time=System.currentTimeMillis();
+		System.out.println(time);
+		String ext=StringUtil.getExt(file.getName());
+		
+		String filename=time+"."+ext;//개발자가 파일명을 조작
+		String detail=area.getText();
+		
+		//fkey구하기 (부모 테이블인 서브카테고리의 pk가져오기)
+		int index=box_sub.getSelectedIndex();//몇번째 콤보박스의 아이템을 선택했는지..
+		SubCategory subCategory=subList.get(index);
+		
+		//유저가 선택한 이미지를 현재 앱이 인식할 수있는 경로로 옮겨놓자
+		FileInputStream fis=null;
+		FileOutputStream fos=null;
+		
+		try {
+			fis=new FileInputStream(file);//유저가 선택한 파일을 대상으로 입력스트림 생성
+			fos=new FileOutputStream("D:\\morning\\javase_workspace\\shop\\product_img/"+filename);
+			
+			int data=-1;
+			while(true) {
+				data=fis.read();//1byte읽기
+				if(data==-1)break;
+				fos.write(data);
+				
+			}
+			//복사완료
+			//dto에 데이터넣기
+			dto.setProduct_name(product_name);
+			dto.setBrand(brand);
+			dto.setPrice(price);
+			dto.setFilename(filename);
+			dto.setDetail(detail);
+			dto.setSubCategory(subCategory);//ProductDTO안에 SubCategoryDTO넣어주기
+			
+		
+			//DAO를 이용하여 오라클에 insert
+			int result=productDAO.insert(dto);
+			if(result==0) {
+				JOptionPane.showMessageDialog(this, "등록되지않았습니다");
+			}else {
+				JOptionPane.showMessageDialog(this, "등록성공");
+			}
+			
+		} catch (FileNotFoundException e) {
+			
+			e.printStackTrace();
+		} catch (IOException e) {
+		
+			e.printStackTrace();
+		}
+		
 		
 	}
 	//파일 탐색기를 띄우고, 그 안에서 원하는 이미지 파일을 선택하면
@@ -165,7 +238,7 @@ public class RegistPage extends ProductSubPage{
 		int result=chooser.showOpenDialog(this);
 		if(result==JFileChooser.APPROVE_OPTION) {
 			//p_preview페널에 그림을 그려넣자
-			File file=chooser.getSelectedFile();
+			file=chooser.getSelectedFile();
 			
 			//file객체를 이미지로 변환해보자
 			try {
@@ -193,7 +266,7 @@ public class RegistPage extends ProductSubPage{
 	
 	//서브 카테고리 가져오기
 	public void subList(int topcategory_idx) {
-		List<SubCategory> subList=subCategoryDAO.selectAllByFkey(topcategory_idx);
+		subList=subCategoryDAO.selectAllByFkey(topcategory_idx);
 		
 		//하위 카테고리를 두번째 콤보박스에 채워넣기
 		box_sub.removeAllItems();
